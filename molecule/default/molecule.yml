@@ -47,6 +47,12 @@ provisioner:
         immich_server_container_labels_traefik_enabled: false
         immich_server_container_http_host_bind_port: 2283
 
+        # A setting that the public config API returns, so verify.yml can
+        # check that Immich reads the config file the role writes.
+        immich_server_config:
+          server:
+            loginPageMessage: Configured by the Molecule test
+
         # The machine-learning component is disabled: its large container
         # image buys no signal in a boot/API smoke test (models are fetched
         # lazily on first use anyway).

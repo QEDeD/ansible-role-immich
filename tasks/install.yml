@@ -47,9 +47,9 @@
   ansible.builtin.template:
     src: "{{ role_path }}/{{ item.src }}"
     dest: "{{ item.dst }}"
-    mode: "0640"
-    owner: "{{ immich_uid }}"
-    group: "{{ immich_gid }}"
+    mode: "{{ item.mode | default('0640') }}"
+    owner: "{{ item.owner | default(immich_uid) }}"
+    group: "{{ item.group | default(immich_gid) }}"
   with_items:
     - src: templates/server/env.j2
       dst: "{{ immich_server_base_path }}/env"
@@ -59,6 +59,15 @@
       dst: "{{ immich_server_base_path }}/labels"
       when: "{{ immich_server_enabled }}"
       component: server
+    - src: templates/server/immich-config.json.j2
+      dst: "{{ immich_server_config_file_path }}"
+      when: "{{ immich_server_enabled and immich_server_config | length > 0 }}"
+      component: server
+      # The file can hold secrets, such as the OAuth client secret. The server process reads it,
+      # so it belongs to the user the container runs as.
+      mode: "0600"
+      owner: "{{ immich_server_container_uid }}"
+      group: "{{ immich_server_container_gid }}"
     - src: templates/machine-learning/env.j2
       dst: "{{ immich_machine_learning_base_path }}/env"
       when: "{{ immich_machine_learning_enabled }}"

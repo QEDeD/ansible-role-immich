@@ -47,6 +47,20 @@
 - name: Validate Immich server-related configuration when Immich server enabled
   when: immich_server_enabled | bool
   block:
+    - name: Fail if immich_server_config is not a dictionary
+      ansible.builtin.fail:
+        msg: >-
+          immich_server_config must be a dictionary with the structure of Immich's config file
+          (see https://docs.immich.app/install/config-file), or empty to leave the settings to Immich's administration web interface.
+      when: immich_server_config is not mapping
+
+    - name: Fail if IMMICH_CONFIG_FILE is also set in immich_server_environment_variables_additional_variables
+      ansible.builtin.fail:
+        msg: >-
+          The role sets IMMICH_CONFIG_FILE itself when immich_server_config is not empty.
+          Remove IMMICH_CONFIG_FILE from immich_server_environment_variables_additional_variables.
+      when: immich_server_config | length > 0 and immich_server_environment_variables_additional_variables is regex('(?m)^\\s*IMMICH_CONFIG_FILE=')
+
     - name: Fail if immich_server_transcoding_hardware_acceleration is invalid
       ansible.builtin.fail:
         msg: >-

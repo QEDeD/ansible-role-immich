@@ -698,6 +698,21 @@ immich_server_environment_variable_immich_trusted_proxies: "{% if immich_server_
 # Additional environment variables for the server container
 immich_server_environment_variables_additional_variables: ""
 
+# Immich system settings, as a dictionary with the structure of the config file
+# described at https://docs.immich.app/install/config-file. Keys left out keep
+# Immich's defaults.
+#
+# When not empty, the role writes it to `immich_server_config_file_path`, mounts
+# the file into the server container and points IMMICH_CONFIG_FILE at it. Immich
+# then takes its system settings only from this file and refuses changes made in
+# its administration web interface. A change to it sets
+# `immich_server_restart_necessary`, since Immich applies some settings only
+# when it starts.
+immich_server_config: {}
+
+immich_server_config_file_path: "{{ immich_server_base_path }}/immich-config.json"
+immich_server_config_file_container_path: /config/immich-config.json
+
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
 #

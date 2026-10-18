@@ -86,6 +86,19 @@
             fail_msg: "Immich reports {{ immich_server_version.json | default('none') }}, expected {{ immich_defaults.immich_version }}"
             success_msg: "Immich reports {{ immich_server_version.json }}"
 
+        - name: Query the public configuration of the running Immich server
+          ansible.builtin.uri:
+            url: "http://localhost:2283/api/public/config"
+            method: GET
+            return_content: true
+          register: immich_public_config
+
+        - name: Assert Immich uses the config file written by the role
+          ansible.builtin.assert:
+            that: immich_public_config.json.server.loginPageMessage | default('') == 'Configured by the Molecule test'
+            fail_msg: "Immich reports login page message {{ immich_public_config.json.server.loginPageMessage | default('none') }}, expected the one from immich_server_config"
+            success_msg: "Immich reads its settings from the config file"
+
         # Creating the initial admin user and logging in exercises a real database
         # write and the Valkey-backed session handling — broken REDIS_* wiring
         # would pass the ping check but fail here.
